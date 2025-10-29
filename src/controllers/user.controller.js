@@ -98,11 +98,12 @@ export const LoginUser = async (req,res) => {
                     httpOnly: false ,
                     secure: true,
                     sameSite: 'none',
+                    path:"/"
                     
                 });
                 res.cookie('refreshToken' , refreshToken , {
                     httpOnly: false,
-                    secure:true,     sameSite: 'none', 
+                    secure:true,     sameSite: 'none', path:"/"
                 });
                 res.status(200).json(new ApiResponse(200 , user, "User logged in successfully"))
             }catch(error){
