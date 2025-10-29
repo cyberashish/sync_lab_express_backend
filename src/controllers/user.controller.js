@@ -53,7 +53,7 @@ export const RegisterUser = async (req,res) => {
                         });
                         res.cookie('refreshToken' , refreshToken , {
                             httpOnly: false,
-                            secure:false, sameSite:'none',
+                            secure:true, sameSite:'none',
                         })
                     }catch(error){
                        res.status(500).json(new ApiResponse(500 , error.message))
