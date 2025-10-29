@@ -44,11 +44,11 @@ const accessToken = jwt.sign(
   );
 
         res.cookie("accessToken" , accessToken , {
-            httpOnly: false,
+            httpOnly: true,
             secure:true, sameSite:'none',path: "/",
         });
         res.cookie("refreshToken" , refreshToken , {
-            httpOnly: false,
+            httpOnly: true,
             secure:true, sameSite:'none',path: "/",
         });
         res.redirect(`${process.env.FRONTEND_HOST}/dashboard`);

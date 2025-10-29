@@ -46,13 +46,13 @@ export const RegisterUser = async (req,res) => {
                         const accessToken = await generateJwtToken({fullname , email} , process.env.ACCESS_TOKEN_SECRET_KEY , 1);
                         const refreshToken = await generateJwtToken({fullname , email} , process.env.REFRESH_TOKEN_SECRET_KEY , 7);
                         res.cookie("accessToken" , accessToken , {
-                            httpOnly: false ,
+                            httpOnly: true ,
                             secure: true,
                             sameSite:'none',
                             
                         });
                         res.cookie('refreshToken' , refreshToken , {
-                            httpOnly: false,
+                            httpOnly: true,
                             secure:false, sameSite:'none',
                         })
                     }catch(error){
@@ -95,13 +95,13 @@ export const LoginUser = async (req,res) => {
                 const accessToken = await generateJwtToken({fullname:user.fullname , email:user.email} , process.env.ACCESS_TOKEN_SECRET_KEY , 1);
                 const refreshToken = await generateJwtToken({fullname:user.fullname , email:user.email} , process.env.REFRESH_TOKEN_SECRET_KEY , 7);
                 res.cookie("accessToken" , accessToken , {
-                    httpOnly: false ,
+                    httpOnly: true ,
                     secure: true,
                     sameSite: 'none',
                     
                 });
                 res.cookie('refreshToken' , refreshToken , {
-                    httpOnly: false,
+                    httpOnly: true,
                     secure:true,     sameSite: 'none', 
                 });
                 res.status(200).json(new ApiResponse(200 , user, "User logged in successfully"))
@@ -126,13 +126,13 @@ export const LoginUser = async (req,res) => {
 export const LogoutUser = async (req , res) => {
     try{
        res.clearCookie("accessToken" , {
-        httpOnly: false ,
+        httpOnly: true ,
         secure: true,
         sameSite: 'none',
         
     });
        res.clearCookie("refreshToken" , {
-        httpOnly: false ,
+        httpOnly: true ,
         secure: true,
         sameSite: 'none',
         
