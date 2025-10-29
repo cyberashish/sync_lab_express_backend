@@ -129,14 +129,16 @@ export const LogoutUser = async (req , res) => {
         httpOnly: false ,
         secure: true,
         sameSite: 'none',
-        
+        path:"/"
     });
        res.clearCookie("refreshToken" , {
         httpOnly: false ,
         secure: true,
         sameSite: 'none',
+        path:"/"
         
     });
+    console.log(req.cookies)
        res.status(200).json(new ApiResponse(200,{},"User loggedout successfully!"));
     }catch(error){
         res.status(500).json(new ApiError(500 , error.message))
