@@ -1,10 +1,28 @@
 {
     "version": 2 ,
-    "builds": [{"src":"src/index.js" , "use":"@vercel/node"}],
+    "builds": [
+        {"src":"src/index.js" , "use":"@vercel/node"},
+        {
+            "src": "build/**",
+            "use":"@vercel/static"
+        }
+    ],
     "routes": [
         {
-            "src": "/(.*)",
-            "dest":"src/index.js"
+          "src": "/user/(.*)",
+          "dest":"src/index.js"
+        },
+        {
+          "src": "/employee/(.*)",
+          "dest":"src/index.js"
+        },
+        {
+            "src": "/",
+            "dest":"build/index.html"
+        },
+        {
+            "src": "/(.+)",
+            "dest":"build/$1"
         }
     ],
     "crons": [

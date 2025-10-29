@@ -19,11 +19,15 @@ server.use(express.urlencoded({extended:true , limit:"16kb"}));
 // Static middleware
 const __filename = fileURLToPath(import.meta.url);
 const __dirname =  path.dirname(__filename);
-server.use(express.static(path.join(__dirname , "public")));
+server.use(express.static(path.resolve(__dirname,"build")));
 server.use(cookieParser());
 
-server.use("/" , userRouter);
+server.use("/user" , userRouter);
 server.use("/employee" , employeeRouter);
+
+server.use("*" , (req,res) => {
+    res.sendFile(path.resolve(__dirname,"build","index.html"))
+})
 
 
 export {server};

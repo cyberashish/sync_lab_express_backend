@@ -58,8 +58,8 @@ const accessToken = jwt.sign(
 .post("/forgot-password", sendResetLink)
 .post("/reset-password/:token", resetPassword)
 .post("/get-user/email", getUserByEmail)
-.put("/user/update-password" , updatePassword)
-.post("/user/leave-request-email" , sendLeaveRequestEmail)
+.put("/update-password" , updatePassword)
+.post("/leave-request-email" , sendLeaveRequestEmail)
 // .post("/add-employee" , addEmployee)
     
 
