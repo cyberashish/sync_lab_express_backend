@@ -29,6 +29,8 @@ export async function verifyJwToken(req,res,next){
     res.cookie("accessToken" , accessToken , {
        httpOnly: true ,
        secure: true ,
+       sameSite:'none',
+       path: "/",
     });
     next();
    }else{

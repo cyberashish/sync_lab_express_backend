@@ -48,10 +48,12 @@ export const RegisterUser = async (req,res) => {
                         res.cookie("accessToken" , accessToken , {
                             httpOnly: true ,
                             secure: true,
+                            sameSite:'none',
+                            path: "/",
                         });
                         res.cookie('refreshToken' , refreshToken , {
                             httpOnly: true,
-                            secure:false, sameSite:'strict'
+                            secure:false, sameSite:'none',path:"/"
                         })
                     }catch(error){
                        res.status(500).json(new ApiResponse(500 , error.message))
@@ -95,11 +97,12 @@ export const LoginUser = async (req,res) => {
                 res.cookie("accessToken" , accessToken , {
                     httpOnly: true ,
                     secure: true,
-                    sameSite: 'none'
+                    sameSite: 'none',
+                    path:"/"
                 });
                 res.cookie('refreshToken' , refreshToken , {
                     httpOnly: true,
-                    secure:true,     sameSite: 'none'
+                    secure:true,     sameSite: 'none', path:"/"
                 });
                 res.status(200).json(new ApiResponse(200 , user, "User logged in successfully"))
             }catch(error){
@@ -125,12 +128,14 @@ export const LogoutUser = async (req , res) => {
        res.clearCookie("accessToken" , {
         httpOnly: true ,
         secure: true,
-        sameSite: 'none'
+        sameSite: 'none',
+        path:"/"
     });
        res.clearCookie("refreshToken" , {
         httpOnly: true ,
         secure: true,
-        sameSite: 'none'
+        sameSite: 'none',
+        path:"/"
     });
        res.status(200).json(new ApiResponse(200,{},"User loggedout successfully!"));
     }catch(error){
