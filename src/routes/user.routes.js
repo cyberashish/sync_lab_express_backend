@@ -1,5 +1,5 @@
 import express from "express";
-import { getAuthenticatedUser, getUserByEmail, LoginUser, LogoutUser, RegisterUser, resetPassword, sendResetLink, updatePassword } from "../controllers/user.controller.js";
+import { getAuthenticatedUser, getUserByEmail, LoginUser, LogoutUser, RegisterUser, resetPassword, sendLeaveRequestEmail, sendResetLink, updatePassword } from "../controllers/user.controller.js";
 import passport from "passport";
 import { verifyToken } from "../middlewares/user.middleware.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -59,6 +59,7 @@ const accessToken = jwt.sign(
 .post("/reset-password/:token", resetPassword)
 .post("/get-user/email", getUserByEmail)
 .put("/user/update-password" , updatePassword)
+.post("/user/leave-request-email" , sendLeaveRequestEmail)
 // .post("/add-employee" , addEmployee)
     
 

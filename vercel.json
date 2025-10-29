@@ -6,5 +6,11 @@
             "src": "/(.*)",
             "dest":"src/index.js"
         }
-    ]
+    ],
+    "crons": [
+    {
+      "path": "/employee/reset-leaves",
+      "schedule": "0 0 1 1 *"
+    }
+  ]
 }

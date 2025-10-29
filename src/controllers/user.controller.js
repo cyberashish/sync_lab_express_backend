@@ -269,3 +269,58 @@ export const getUserByEmail = async (req , res) => {
 }
 
 
+export const sendLeaveRequestEmail = async (req, res) => {
+  try {
+    const { name, message, _subject } = req.body;
+
+    if (!name || !message || !_subject) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 30px;">
+        <div style="max-width: 600px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden;">
+          <div style="background-color: #2563eb; color: white; padding: 20px; text-align: center;">
+            <h2>${_subject}</h2>
+          </div>
+
+          <div style="padding: 25px;">
+            <p>Dear HR/Manager,</p>
+            <p><strong>${name}</strong> has submitted a new leave request through the Wrappixel EMS system.</p>
+
+            <table style="width:100%; border-collapse: collapse; margin-top: 20px;">
+              <tr style="background-color: #f1f5f9;">
+                <td style="padding: 12px; border: 1px solid #e2e8f0;"><strong>Employee Name</strong></td>
+                <td style="padding: 12px; border: 1px solid #e2e8f0;">${name}</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; border: 1px solid #e2e8f0;"><strong>Message</strong></td>
+                <td style="padding: 12px; border: 1px solid #e2e8f0;">${message}</td>
+              </tr>
+            </table>
+
+            <p style="margin-top: 30px;">Please review this request and take the necessary action.</p>
+            <p>Thank you,<br><strong>Wrappixel EMS</strong></p>
+          </div>
+
+          <div style="background-color: #f1f5f9; color: #64748b; text-align: center; padding: 15px; font-size: 13px;">
+            © ${new Date().getFullYear()} Wrappixel EMS. All rights reserved.
+          </div>
+        </div>
+      </div>
+    `;
+
+    await sendEmail({
+      to: "cybermadhav0@gmail.com",
+      subject: _subject,
+      html,
+    });
+
+    res.status(200).json({ message: "Leave request email sent successfully!" });
+  } catch (error) {
+    console.error("Email sending error:", error);
+    res.status(500).json({ message: "Failed to send email." });
+  }
+};
+
+
