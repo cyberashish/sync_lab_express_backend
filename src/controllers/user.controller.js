@@ -46,14 +46,14 @@ export const RegisterUser = async (req,res) => {
                         const accessToken = await generateJwtToken({fullname , email} , process.env.ACCESS_TOKEN_SECRET_KEY , 1);
                         const refreshToken = await generateJwtToken({fullname , email} , process.env.REFRESH_TOKEN_SECRET_KEY , 7);
                         res.cookie("accessToken" , accessToken , {
-                            httpOnly: true ,
+                            httpOnly: false ,
                             secure: true,
                             sameSite:'none',
-                            path: "/",
+                            
                         });
                         res.cookie('refreshToken' , refreshToken , {
-                            httpOnly: true,
-                            secure:false, sameSite:'none',path:"/"
+                            httpOnly: false,
+                            secure:false, sameSite:'none',
                         })
                     }catch(error){
                        res.status(500).json(new ApiResponse(500 , error.message))
@@ -95,14 +95,14 @@ export const LoginUser = async (req,res) => {
                 const accessToken = await generateJwtToken({fullname:user.fullname , email:user.email} , process.env.ACCESS_TOKEN_SECRET_KEY , 1);
                 const refreshToken = await generateJwtToken({fullname:user.fullname , email:user.email} , process.env.REFRESH_TOKEN_SECRET_KEY , 7);
                 res.cookie("accessToken" , accessToken , {
-                    httpOnly: true ,
+                    httpOnly: false ,
                     secure: true,
                     sameSite: 'none',
-                    path:"/"
+                    
                 });
                 res.cookie('refreshToken' , refreshToken , {
-                    httpOnly: true,
-                    secure:true,     sameSite: 'none', path:"/"
+                    httpOnly: false,
+                    secure:true,     sameSite: 'none', 
                 });
                 res.status(200).json(new ApiResponse(200 , user, "User logged in successfully"))
             }catch(error){
@@ -126,16 +126,16 @@ export const LoginUser = async (req,res) => {
 export const LogoutUser = async (req , res) => {
     try{
        res.clearCookie("accessToken" , {
-        httpOnly: true ,
+        httpOnly: false ,
         secure: true,
         sameSite: 'none',
-        path:"/"
+        
     });
        res.clearCookie("refreshToken" , {
-        httpOnly: true ,
+        httpOnly: false ,
         secure: true,
         sameSite: 'none',
-        path:"/"
+        
     });
        res.status(200).json(new ApiResponse(200,{},"User loggedout successfully!"));
     }catch(error){

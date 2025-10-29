@@ -27,10 +27,9 @@ export async function verifyJwToken(req,res,next){
    if(refreshTokenDecodedInfo){
     const accessToken = await generateJwtToken({fullname : refreshTokenDecodedInfo.fullname , email: refreshTokenDecodedInfo.email}, process.env.ACCESS_TOKEN_SECRET_KEY , 1);
     res.cookie("accessToken" , accessToken , {
-       httpOnly: true ,
+       httpOnly: false ,
        secure: true ,
        sameSite:'none',
-       path: "/",
     });
     next();
    }else{
