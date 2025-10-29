@@ -1,0 +1,1 @@
+import{j as r,c as s}from"./index-snz9Drzv.js";function o({className:a,...t}){return r.jsx("div",{"data-slot":"card",className:s("bg-white dark:bg-black text-dark flex flex-col gap-6 rounded-lg border-none p-6 shadow-sm dark:shadow-3xl",a),...t})}function e({className:a,...t}){return r.jsx("div",{"data-slot":"card-content",className:s("",a),...t})}export{o as C,e as a};
