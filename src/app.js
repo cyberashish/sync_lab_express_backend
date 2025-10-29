@@ -25,5 +25,9 @@ server.use(cookieParser());
 server.use("/user" , userRouter);
 server.use("/employee" , employeeRouter);
 
+server.get("/:path(*)", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "build", "index.html"));
+  });
+
 
 export {server};
