@@ -1,11 +1,11 @@
 import express from "express";
-// import { userRouter } from "./routes/user.routes.ts";
+import { userRouter } from "./routes/user.routes.js";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import cookieParser from 'cookie-parser';
-// import "./config/googleStrategy.ts"
-// import { employeeRouter } from "./routes/employee.routes.ts";
+import "./config/googleStrategy.js"
+import { employeeRouter } from "./routes/employee.routes.js";
 
 const server = express();
 
@@ -22,10 +22,10 @@ const __dirname =  path.dirname(__filename);
 server.use(express.static(path.join(__dirname , "public")));
 server.use(cookieParser());
 
-// server.use("/" , userRouter);
-// server.use("/employee" , employeeRouter);
-server.get('/', (req, res) => {
-    res.send('Hello, Express!');
-  });
+server.use("/" , userRouter);
+server.use("/employee" , employeeRouter);
+// server.get('/', (req, res) => {
+//     res.send('Hello, Express!');
+//   });
 
 export {server};
