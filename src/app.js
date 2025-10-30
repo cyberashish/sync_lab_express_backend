@@ -9,9 +9,11 @@ import { employeeRouter } from "./routes/employee.routes.js";
 
 const server = express();
 
+
 // Middlewares
 server.use(cors({
     origin: process.env.FRONTEND_HOST || "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }));
 server.use(express.json({limit:"16kb"}));
@@ -19,7 +21,7 @@ server.use(express.urlencoded({extended:true , limit:"16kb"}));
 // Static middleware
 const __filename = fileURLToPath(import.meta.url);
 const __dirname =  path.dirname(__filename);
-server.use(express.static(path.resolve(__dirname,"build")));
+// server.use(express.static(path.resolve(__dirname,"build")));
 server.use(cookieParser());
 
 server.use("/user" , userRouter);

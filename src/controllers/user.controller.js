@@ -21,154 +21,133 @@ export  function generateJwtToken(user , secretKey , expiry){
  }
 
 
-export const RegisterUser = async (req,res) => {
-        const {email , fullname ,password} = req.body;
-        if(email && fullname && password){
-           try{
-             const user = await prisma.user.findUnique({
-                where:{
-                    email:email
-                }
-             });
-             if(!user){
-               const salt = await bcrypt.genSalt(10);
-               const hashedPassword = await bcrypt.hash(password , salt);
-               try{ 
-                  const createdUser = await prisma.user.create({
-                    data:{
-                        email,
-                        fullname,
-                        password:hashedPassword
-                    }
-                  });
-                  if(createdUser){
-                    try{
-                        const accessToken = await generateJwtToken({fullname , email} , process.env.ACCESS_TOKEN_SECRET_KEY , 1);
-                        const refreshToken = await generateJwtToken({fullname , email} , process.env.REFRESH_TOKEN_SECRET_KEY , 7);
-                        res.cookie("accessToken" , accessToken , {
-                            httpOnly: false ,
-                            secure: true,
-                            sameSite:'none',
-                            
-                        });
-                        res.cookie('refreshToken' , refreshToken , {
-                            httpOnly: false,
-                            secure:true, sameSite:'none',
-                        })
-                    }catch(error){
-                       res.status(500).json(new ApiResponse(500 , error.message))
-                    }
-                    res.status(201).json(new ApiResponse(200 , createdUser , "User registered successfully"))
-                  }else{
-                    res.status(500).json(new ApiError(500 , "Failed to create user"))
-                  }
-               }catch(error){
-                  res.status(500).json(new ApiError(500 , error.message))
-               }
-             }else{
-                res.status(409).json(new ApiError(409 , "User already registered"));
-             }
+ export const RegisterUser = async (req, res) => {
+  const { email, fullname, password } = req.body;
 
-           }catch(error){
-              res.status(500).json(new ApiError(500 , error.message))
-           }
-        }else{
-            res.status(422).json(new ApiError(422 , "Missing Required Fields"))
-        }
-     
-}
+  if (!email || !fullname || !password)
+    return res.status(422).json(new ApiError(422, "Missing Required Fields"));
 
+  try {
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser)
+      return res.status(409).json(new ApiError(409, "User already registered"));
 
-export const LoginUser = async (req,res) => {
-      const {email , password} = req.body;
-      if(email && password){
-       try{
-         const user = await prisma.user.findUnique({
-            where:{
-                email:email
-            }
-         });
-         if(user){
-           const isPasswordValid = await bcrypt.compare(password , user.password);
-           if(isPasswordValid){
-            try{
-                const accessToken = await generateJwtToken({fullname:user.fullname , email:user.email} , process.env.ACCESS_TOKEN_SECRET_KEY , 1);
-                const refreshToken = await generateJwtToken({fullname:user.fullname , email:user.email} , process.env.REFRESH_TOKEN_SECRET_KEY , 7);
-                res.cookie("accessToken" , accessToken , {
-                    httpOnly: false ,
-                    secure: true,
-                    sameSite: 'none',
-                    path:"/"
-                    
-                });
-                res.cookie('refreshToken' , refreshToken , {
-                    httpOnly: false,
-                    secure:true,     sameSite: 'none', path:"/"
-                });
-                res.status(200).json(new ApiResponse(200 , user, "User logged in successfully"))
-            }catch(error){
-               res.status(500).json(new ApiError(500 , "Failed to generate tokens"))
-            }
-           }else{
-             res.status(404).json(new ApiError(404,"Email/Password not valid"))
-           }
-         }else{
-             res.status(404).json(new ApiError(404 , "User not found"))
-         }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-       }catch(error){
-         res.status(500).json(new ApiError(500 , error.message))
-       }
-      }else{
-         res.status(422).json(new ApiError(422,"Please provide missing fields"));
-      }
-}
-
-export const LogoutUser = async (req , res) => {
-    try{
-       res.clearCookie("accessToken" , {
-        httpOnly: false ,
-        secure: true,
-        sameSite: 'none',
-        path:"/"
+    const createdUser = await prisma.user.create({
+      data: { email, fullname, password: hashedPassword },
     });
-       res.clearCookie("refreshToken" , {
-        httpOnly: false ,
+
+    // ✅ Create session after successful registration
+    req.session.user = {
+      id: createdUser.id,
+      email: createdUser.email,
+      fullname: createdUser.fullname,
+    };
+
+    res
+      .status(201)
+      .json(new ApiResponse(201, createdUser, "User registered successfully"));
+  } catch (error) {
+    res.status(500).json(new ApiError(500, error.message));
+  }
+};
+
+
+
+export const LoginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password)
+    return res.status(422).json(new ApiError(422, "Missing fields"));
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(404).json(new ApiError(404, "User not found"));
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid)
+      return res.status(401).json(new ApiError(401, "Invalid credentials"));
+
+    // ✅ Store minimal user info in session
+    req.session.user = {
+      id: user.id,
+      email: user.email,
+      fullname: user.fullname,
+    };
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, user, "User logged in successfully"));
+  } catch (error) {
+    res.status(500).json(new ApiError(500, error.message));
+  }
+};
+
+
+export const LogoutUser = async (req, res) => {
+  try {
+    req.session.destroy((err) => {
+      if (err)
+        return res
+          .status(500)
+          .json(new ApiError(500, "Failed to destroy session"));
+
+      res.clearCookie("connect.sid", {
+        httpOnly: true,
         secure: true,
-        sameSite: 'none',
-        path:"/"
-        
+        sameSite: "none",
+      });
+      res
+        .status(200)
+        .json(new ApiResponse(200, {}, "User logged out successfully"));
     });
-    console.log(req.cookies)
-       res.status(200).json(new ApiResponse(200,{},"User loggedout successfully!"));
-    }catch(error){
-        res.status(500).json(new ApiError(500 , error.message))
+  } catch (error) {
+    res.status(500).json(new ApiError(500, error.message));
+  }
+};
+
+export const getAuthenticatedUser = async (req, res) => {
+  try {
+    // Check if session exists and user data is stored
+    if (!req.session || !req.session.user) {
+      return res
+        .status(401)
+        .json(new ApiError(401, "No active session. Please log in."));
     }
-}
 
-export const getAuthenticatedUser = async (req , res) => {
-     try{
-      const accessToken = req.cookies.accessToken;
-      console.log(accessToken,"andruni token")
-      if(accessToken){
-        const userData = await verifyToken(accessToken , process.env.ACCESS_TOKEN_SECRET_KEY);
-        if(userData){
-          const user = await prisma.user.findUnique({
-            where:{
-              email:userData.email
-            }
-          })
-         res.status(200).json(new ApiResponse(200 , {...userData , ...user, role:user.role} , "Successfuly fetched authenticated user"));
-        }else{
-         res.status(401).json(new ApiError(401 , 'Invalid tokens/unauthorised access'));
-        }
-      }else{
-        res.status(422).json(new ApiError(401 , 'Please provide valid token'));
-      }
-     }catch(error){
-        res.status(401).json(new ApiError(401 , error.message))
-     }
-}
+    const sessionUser = req.session.user;
+
+    // Fetch the most up-to-date user data from DB (optional but recommended)
+    const user = await prisma.user.findUnique({
+      where: { email: sessionUser.email },
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json(new ApiError(404, "User not found in database"));
+    }
+
+    // Combine session info and DB info
+    const userData = {
+      id: user.id,
+      fullname: user.fullname,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, userData, "Authenticated user fetched successfully"));
+  } catch (error) {
+    res.status(500).json(new ApiError(500, error.message));
+  }
+};
+
 
 export const sendResetLink = async (req, res) => {
   const { email } = req.body;
