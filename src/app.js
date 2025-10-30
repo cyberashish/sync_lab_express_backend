@@ -6,16 +6,41 @@ import { fileURLToPath } from "url";
 import cookieParser from 'cookie-parser';
 import "./config/googleStrategy.js"
 import { employeeRouter } from "./routes/employee.routes.js";
+import session from "express-session";
+import MongoDBStore from "connect-mongodb-session";
 
 const server = express();
+const MongoStore = MongoDBStore(session);
+
+const store = new MongoStore({
+  uri: process.env.DATABASE_URL,
+  collection: "sessions",
+});
+
+server.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store,
+    cookie: {
+      httpOnly: true,
+      secure: true, // set false in local dev if not using https
+      sameSite: "none",
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    },
+  })
+);
 
 
 // Middlewares
-server.use(cors({
-    origin: process.env.FRONTEND_HOST || "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  }));
+server.use(
+  cors({
+    origin: "*", // ✅ allow any origin
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 server.use(express.json({limit:"16kb"}));
 server.use(express.urlencoded({extended:true , limit:"16kb"}));
 // Static middleware
