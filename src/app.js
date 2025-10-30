@@ -34,27 +34,11 @@ server.use(
 
 
 // Middlewares
-server.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin) {
-    res.header("Access-Control-Allow-Origin", origin);
-  } else {
-    res.header("Access-Control-Allow-Origin", "*");
-  }
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, X-Requested-With"
-  );
-  res.header("Access-Control-Allow-Credentials", "true");
-
-  // ✅ Handle preflight requests immediately
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-
-  next();
-});
+server.use(cors({
+    origin: process.env.FRONTEND_HOST || "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  }));
 server.use(express.json({limit:"16kb"}));
 server.use(express.urlencoded({extended:true , limit:"16kb"}));
 // Static middleware
